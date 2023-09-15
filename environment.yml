@@ -1,0 +1,9 @@
+name: learning-path
+channels:
+  - defaults
+dependencies:
+  - pip=21.2.2
+  - python=3.9
+  - pip:
+      - praw==3.6.0
+      - requests==2.31.0
