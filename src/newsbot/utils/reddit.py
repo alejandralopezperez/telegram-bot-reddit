@@ -21,7 +21,7 @@ def get_latest_news(sub_reddits):
             submission_content = "Sorry couldn't fetch; subreddit doesn't seem to exist"
     except praw.errors.NotFound :
             log.info(f"Subreddit {sub_reddits} is invalid or doesn''t exist.")
-            submission_content = "Sorry couldn't fetch; something went wrong, please do send a report to @sathyabhat"
+            submission_content = "Sorry couldn't fetch; something went wrong"
     return submission_content
 
 
