@@ -1,0 +1,10 @@
+# General
+__pycache__/
+*.py[cod]
+
+# Dependencies
+.env
+venv/
+
+#VSCode
+.vscode
