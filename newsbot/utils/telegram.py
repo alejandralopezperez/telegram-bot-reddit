@@ -5,15 +5,17 @@ from pathlib import Path
 from time import sleep
 from typing import Dict
 
-from .states import States, log
+from newsbot import log
+from .states import States
 from .reddit import Reddit
 
 
 class Telegram:
 
-    def __init__(self, config) -> None:
+    def __init__(self, config, states: States) -> None:
         self._config = config
         self._reddit = Reddit(self._config)
+        self._states = states
         self._last_updated_path = Path(self._config.last_updated_folder)
         self._api_base = f'https://api.telegram.org/bot{self._config.nbt_access_token}'
         self._err_no_source = 'No sources defined! Set a source using /source list, of, sub, reddits.'
@@ -104,6 +106,6 @@ class Telegram:
         filename = self._last_updated_path / 'last_updated.txt'
         with open(filename, 'w') as f:
             f.write(str(last_updated))
-            States.last_updated = last_updated
+            self._states.last_updated_id = last_updated
             log.debug(f'Updated last_updated to {last_updated}')
         f.close()

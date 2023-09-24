@@ -1,5 +1,6 @@
 import praw
-from .states import log
+
+from newsbot import log
 
 
 class Reddit:

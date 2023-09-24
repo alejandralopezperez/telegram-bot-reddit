@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from utils.states import States, log
+from newsbot import log
+from utils.states import States
 from utils.telegram import Telegram
 from config.config import AppConfiguration
 
@@ -29,12 +30,13 @@ class LastUpdate:
 def main():
     config = AppConfiguration()
     update = LastUpdate(config)
+    states = States()
     try:
         log.info("Starting up")
-        States.last_updated = update.get_last_updated()
-        telegram = Telegram(config)
+        states.last_updated_id = update.get_last_updated()
+        telegram = Telegram(config, states)
         while True:
-            telegram.handle_incoming_messages(States.last_updated)
+            telegram.handle_incoming_messages(states.last_updated_id)
     except KeyboardInterrupt:
         log.info("Received KeybInterrupt, exiting")
 
