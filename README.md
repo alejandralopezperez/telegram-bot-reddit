@@ -60,3 +60,21 @@ To run the newsbot, start the python script with the command:
     python newsbot/main.py
 
 In the Telegram Messenger window of the bot, type a `/start` command, set a source subreddit with the `/source` command (e.g., `/source python`) and tell the bot to fetch some news with `/fetch`.
+
+
+## Build Docker image
+
+The project contains a Dockerfile, to build the Docker image run:
+
+    docker build -t learning_path/newsbot .
+
+and to run the container:
+
+    docker run -d --name newsbot learning_path/newsbot
+
+To stop or start the container run
+
+    docker stop
+    docker start
+
+respectively.
