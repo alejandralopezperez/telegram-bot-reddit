@@ -64,17 +64,16 @@ In the Telegram Messenger window of the bot, type a `/start` command, set a sour
 
 ## Build Docker image
 
-The project contains a Dockerfile, to build the Docker image run:
+The Dockerfile included in this project allows the Newsbot application to be containerized, providing a portable and reproducible environment for running the bot. By using Docker, the Newsbot application can be easily built and deployed on any system that has Docker installed, without worrying about dependencies or compatibility issues. 
 
-    docker build -t learning_path/newsbot .
+The Dockerfile utilizes Docker volumes to allow data persistence, which means that even if the container is killed or restarted, the state of the newsbot and its customized settings will be preserved. By attaching the Docker volume to a new container, the Newsbot's state and customized settings can be saved and restored across container restarts. This ensures that the Newsbot application retains its data and customization even after killing or restarting the container. The data file of the SQLite database in `newsbot/data/newsbot.db` will be saved to a Docker volume.
 
-and to run the container:
+To use this Dockerfile, simply build the Docker image:
 
-    docker run -d --name newsbot learning_path/newsbot
+    docker build -t learning_path/newsbot-sqlite .
 
-To stop or start the container run
+and run the container with the the volume name:
 
-    docker stop
-    docker start
+    docker run --rm --name newsbot-sqlite -v newsbot-data:/app/learning_path/newsbot/data learning_path/newsbot-sqlite
 
-respectively.
+This command creates a new container called `newsbot-sqlite`, with a volume called `newsbot-data` attached to the container and mounted to the `/newsbot/data` directory inside the container. The --rm flag ensures that the container is removed when it is stopped. When stopping the bot and creating a new container with the same command, the content from the previously configured subreddit will be available, as the subreddit source has been saved to the database.
