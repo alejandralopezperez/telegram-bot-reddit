@@ -1,3 +1,4 @@
+import peewee
 import re
 import requests
 
@@ -6,8 +7,9 @@ from time import sleep
 from typing import Dict
 
 from newsbot import log
-from .states import States
+from .models import db, Source
 from .reddit import Reddit
+from .states import States
 
 
 class Telegram:
@@ -72,7 +74,17 @@ class Telegram:
                 if (r is not None and r.group(1) == 'source'):
                     if r.group(2):
                         self._sources_dict[person_id] = r.group(2)
-                        self.post_message(person_id, f"Sources set as{r.group(2)}!")
+                        log.info(f'Sources set for {person_id} to {self._sources_dict[person_id]}')
+                        with db.atomic() as txn:
+                            try:
+                                sources = Source.create(person_id=person_id, fetch_from=self._sources_dict[person_id])
+                                log.debug(f'Inserted row id: {sources.person_id}')
+                            except peewee.IntegrityError:
+                                sources = Source.update(fetch_from=self._sources_dict[person_id]).where(person_id == person_id)
+                                rows_updated = sources.execute()
+                                log.info(f'Updated {rows_updated} rows')
+                            txn.commit()
+                        self.post_message(person_id, 'Sources set as {0}!'.format(r.group(2)))
                     else:
                         self.post_message(person_id, 'We need a comma separated list of subreddits! No subreddit, no news :-(')
 
@@ -92,12 +104,11 @@ class Telegram:
                 if split_chat_text[0] == '/fetch' and (person_id not in self._skip_list):
                     self.post_message(person_id, 'Hang on, fetching your news...')
                     try:
-                        sub_reddits = self._sources_dict[person_id]
-                    except KeyError:
-                        self.post_message(person_id, self._err_no_source)
-                    else:
-                        summarized_news = self._reddit.get_latest_news(self._sources_dict[person_id])
+                        sub_reddits = Source.get(person_id = person_id).fetch_from.strip()
+                        summarized_news = self._reddit.get_latest_news(sub_reddits)
                         self.post_message(person_id, summarized_news)
+                    except peewee.DoesNotExist:
+                        self.post_message(person_id, self._err_no_source)
                 
                 last_updated = req['update_id']
                 self.write_last_updated(last_updated)

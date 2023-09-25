@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from newsbot import log
+from utils.models import create_tables
 from utils.states import States
 from utils.telegram import Telegram
 from config.config import AppConfiguration
@@ -32,7 +33,8 @@ def main():
     update = LastUpdate(config)
     states = States()
     try:
-        log.info("Starting up")
+        log.info("Starting newsbot")
+        create_tables()
         states.last_updated_id = update.get_last_updated()
         telegram = Telegram(config, states)
         while True:
