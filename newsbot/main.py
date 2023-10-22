@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from newsbot import log
@@ -30,6 +31,11 @@ class LastUpdate:
 
 def main():
     config = AppConfiguration()
+    if 'NBT_ACCESS_TOKEN' in os.environ:
+        print(f'Using NBT_ACCESS_TOKEN: {os.environ["NBT_ACCESS_TOKEN"]}\n', flush=True)
+    else:
+        print('WARNING: Using the default value for NBT_ACCESS_TOKEN\n', flush=True)
+
     update = LastUpdate(config)
     states = States()
     try:
