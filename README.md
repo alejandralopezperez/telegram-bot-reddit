@@ -12,7 +12,7 @@ A Telegram Messenger account is needed. To sign up, [download the application](h
 
 Telegram uses a bot called BotFather as its interface for creating new bots and updating them. To get started with BotFather, in the search panel type _BotFather_. From the chat window, type `/start`. This will trigger BotFather to provide an introductory set of messages.
 
-To use BotFather to generate a new bot, start by typing `/newbot` in Telegram Messenger, which will trigger a series of questions to answer. Due to Telegram's restrictions, the username for a bot must always end with _bot_. Along with the link to the documentation, Telegram will issue a token, which is used to identify and authorize bots. This API token must be placed as an environment variable in the .env file, defined as **NBT_ACCESS_TOKEN** in the `.env.template` file.
+To use BotFather to generate a new bot, start by typing `/newbot` in Telegram Messenger, which will trigger a series of questions to answer. Due to Telegram's restrictions, the username for a bot must always end with _bot_. Along with the link to the documentation, Telegram will issue a token, which is used to identify and authorize bots. This API token must be placed as an environment variable in the .env file, defined as **NBT_ACCESS_TOKEN** in the `.env.template` file, or passed as an environment variable when running the docker image.
 
 ## Test the endpoint
 
@@ -47,11 +47,11 @@ Now, the environment is set up and ready to use for this project.
 
 ## Create the .env file
 
-To create the `.env` file of the project, locate the `.env.template` file in the root directory of the project and rename the file to `.env`. This is the file that will hold the environment-specific variables. Add the API token as the NBT_ACCESS_TOKEN environment variable
+To create the `.env` file of the project, locate the `.env.template` file in the root directory of the project and rename the file to `.env`. This is the file that will hold the environment-specific variables. The API token can be added to the .env file as the NBT_ACCESS_TOKEN environment variable
 
     NBT_ACCESS_TOKEN=<NBT_ACCESS_TOKEN>
 
-and save the .env file.
+or passed as an environment variable when running the docker image. If the token is set in the dotenv file and when running the docker image, the latter will take priority over the dotenv file.
 
 ## Running newsbot
 

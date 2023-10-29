@@ -30,7 +30,12 @@ class LastUpdate:
 
 
 def main():
-    config = AppConfiguration()
+    try:
+        config = AppConfiguration()
+    except Exception as e:
+        print(f'ERROR: An error occurred while loading configuration. It is missing an environment variable.\n', flush=True)
+        raise EnvironmentError('Environment variables are missing')
+
     if 'NBT_ACCESS_TOKEN' in os.environ:
         print(f'Using NBT_ACCESS_TOKEN: {os.environ["NBT_ACCESS_TOKEN"]}\n', flush=True)
     else:
