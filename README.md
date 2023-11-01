@@ -66,15 +66,20 @@ In the Telegram Messenger window of the bot, type a `/start` command, set a sour
 
 The Dockerfile included in this project allows the Newsbot application to be containerized, providing a portable and reproducible environment for running the bot. By using Docker, the Newsbot application can be easily built and deployed on any system that has Docker installed, without worrying about dependencies or compatibility issues. 
 
-The Dockerfile utilizes Docker volumes to allow data persistence, which means that even if the container is killed or restarted, the state of the newsbot and its customized settings will be preserved. By attaching the Docker volume to a new container, the Newsbot's state and customized settings can be saved and restored across container restarts. This ensures that the Newsbot application retains its data and customization even after killing or restarting the container. The data file of the SQLite database in `newsbot/data/newsbot.db` will be saved to a Docker volume.
+To allow data persistence, a MySQL database is used. A bridge network is used to connect the project container and the MySQL container. To use the Dockerfile, simply build the Docker image:
 
-To use this Dockerfile, simply build the Docker image:
+    docker build -t learning_path/newsbot-mysql .
 
-    docker build -t learning_path/newsbot-sqlite .
+create a new network called `newsbot` to which the containers will be connected
 
-and run the container with the the volume name:
+    docker network create newsbot
 
-    docker run --rm -e NBT_ACCESS_TOKEN=<token> --name newsbot-sqlite -v newsbot-data:/app/learning_path/newsbot/data learning_path/newsbot-sqlite
+connect MySQL container to the network and mount the MySQL database to a volume called `newsbot-db`, the following command to start the MySQL container:
 
-where <token> is the Newsbot API key passed as an environment variable, if not passed, the docker will run with the default token value. This command creates a new container called `newsbot-sqlite`, with a volume called `newsbot-data` attached to the container and mounted to the `/newsbot/data` directory inside the container. The --rm flag ensures that the container is removed when it is stopped. When stopping the bot and creating a new container with the same command, the content from the previously configured subreddit will be available, as the subreddit source has been saved to the database.
+    docker run -d --name mysql --network newsbot -v newsbot-db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=dontusethisinprod mysql:8
 
+and run the container while connecting it to the `newsbot` network:
+
+    docker run --rm --network newsbot --name newsbot-mysql -e NBT_ACCESS_TOKEN=<token> learning_path/newsbot-mysql
+
+where <token> is the Newsbot API key passed as an environment variable, if not passed, the docker will run with the default token value. 

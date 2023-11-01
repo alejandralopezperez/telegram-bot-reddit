@@ -10,6 +10,4 @@ ENV PYTHONPATH "${PYTHONPATH}:/app/learning_path"
 
 RUN pip install -r requirements.txt
 
-VOLUME ["/newsbot/data"]
-
 CMD ["python", "newsbot/main.py"]
