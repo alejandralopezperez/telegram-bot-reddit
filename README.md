@@ -12,7 +12,7 @@ A Telegram Messenger account is needed. To sign up, [download the application](h
 
 Telegram uses a bot called BotFather as its interface for creating new bots and updating them. To get started with BotFather, in the search panel type _BotFather_. From the chat window, type `/start`. This will trigger BotFather to provide an introductory set of messages.
 
-To use BotFather to generate a new bot, start by typing `/newbot` in Telegram Messenger, which will trigger a series of questions to answer. Due to Telegram's restrictions, the username for a bot must always end with _bot_. Along with the link to the documentation, Telegram will issue a token, which is used to identify and authorize bots. This API token must be placed as an environment variable in the .env file, defined as **NBT_ACCESS_TOKEN** in the `.env.template` file.
+To use BotFather to generate a new bot, start by typing `/newbot` in Telegram Messenger, which will trigger a series of questions to answer. Due to Telegram's restrictions, the username for a bot must always end with _bot_. Along with the link to the documentation, Telegram will issue a token, which is used to identify and authorize bots. This API token must be placed as an environment variable in the .env file, defined as **NBT_ACCESS_TOKEN** in the `.env.template` file, or passed as an environment variable when running the docker image.
 
 ## Test the endpoint
 
@@ -47,11 +47,11 @@ Now, the environment is set up and ready to use for this project.
 
 ## Create the .env file
 
-To create the `.env` file of the project, locate the `.env.template` file in the root directory of the project and rename the file to `.env`. This is the file that will hold the environment-specific variables. Add the API token as the NBT_ACCESS_TOKEN environment variable
+To create the `.env` file of the project, locate the `.env.template` file in the root directory of the project and rename the file to `.env`. This is the file that will hold the environment-specific variables. The API token can be added to the .env file as the NBT_ACCESS_TOKEN environment variable
 
     NBT_ACCESS_TOKEN=<NBT_ACCESS_TOKEN>
 
-and save the .env file.
+or passed as an environment variable when running the docker image. If the token is set in the dotenv file and when running the docker image, the latter will take priority over the dotenv file.
 
 ## Running newsbot
 
@@ -64,17 +64,17 @@ In the Telegram Messenger window of the bot, type a `/start` command, set a sour
 
 ## Build Docker image
 
-The project contains a Dockerfile, to build the Docker image run:
+The Dockerfile included in this project allows the Newsbot application to be containerized, providing a portable and reproducible environment for running the bot. By using Docker, the Newsbot application can be easily built and deployed on any system that has Docker installed, without worrying about dependencies or compatibility issues. 
 
-    docker build -t learning_path/newsbot .
+The Dockerfile utilizes Docker volumes to allow data persistence, which means that even if the container is killed or restarted, the state of the newsbot and its customized settings will be preserved. By attaching the Docker volume to a new container, the Newsbot's state and customized settings can be saved and restored across container restarts. This ensures that the Newsbot application retains its data and customization even after killing or restarting the container. The data file of the SQLite database in `newsbot/data/newsbot.db` will be saved to a Docker volume.
 
-and to run the container:
+To use this Dockerfile, simply build the Docker image:
 
-    docker run -d --name newsbot learning_path/newsbot
+    docker build -t learning_path/newsbot-sqlite .
 
-To stop or start the container run
+and run the container with the the volume name:
 
-    docker stop
-    docker start
+    docker run --rm -e NBT_ACCESS_TOKEN=<token> --name newsbot-sqlite -v newsbot-data:/app/learning_path/newsbot/data learning_path/newsbot-sqlite
 
-respectively.
+where <token> is the Newsbot API key passed as an environment variable, if not passed, the docker will run with the default token value. This command creates a new container called `newsbot-sqlite`, with a volume called `newsbot-data` attached to the container and mounted to the `/newsbot/data` directory inside the container. The --rm flag ensures that the container is removed when it is stopped. When stopping the bot and creating a new container with the same command, the content from the previously configured subreddit will be available, as the subreddit source has been saved to the database.
+

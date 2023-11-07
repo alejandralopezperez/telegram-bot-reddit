@@ -1,6 +1,8 @@
+import os
 from pathlib import Path
 
 from newsbot import log
+from utils.models import create_tables
 from utils.states import States
 from utils.telegram import Telegram
 from config.config import AppConfiguration
@@ -28,11 +30,22 @@ class LastUpdate:
 
 
 def main():
-    config = AppConfiguration()
+    try:
+        config = AppConfiguration()
+    except Exception as e:
+        print(f'ERROR: An error occurred while loading configuration. It is missing an environment variable.\n', flush=True)
+        raise EnvironmentError('Environment variables are missing')
+
+    if 'NBT_ACCESS_TOKEN' in os.environ:
+        print(f'Using NBT_ACCESS_TOKEN: {os.environ["NBT_ACCESS_TOKEN"]}\n', flush=True)
+    else:
+        print('WARNING: Using the default value for NBT_ACCESS_TOKEN\n', flush=True)
+
     update = LastUpdate(config)
     states = States()
     try:
-        log.info("Starting up")
+        log.info("Starting newsbot")
+        create_tables()
         states.last_updated_id = update.get_last_updated()
         telegram = Telegram(config, states)
         while True:
