@@ -74,7 +74,7 @@ To use this Dockerfile, simply build the Docker image:
 
 and run the container with the the volume name:
 
-    docker run --rm -e NBT_ACCESS_TOKEN=<token> --name newsbot-sqlite -v newsbot-data:/app/learning_path/newsbot/data learning_path/newsbot-sqlite
+    docker run --rm --env-file .env --name newsbot-sqlite -v newsbot-data:/app/learning_path/newsbot/data learning_path/newsbot-sqlite
 
 where <token> is the Newsbot API key passed as an environment variable, if not passed, the docker will run with the default token value. This command creates a new container called `newsbot-sqlite`, with a volume called `newsbot-data` attached to the container and mounted to the `/newsbot/data` directory inside the container. The --rm flag ensures that the container is removed when it is stopped. When stopping the bot and creating a new container with the same command, the content from the previously configured subreddit will be available, as the subreddit source has been saved to the database.
 
