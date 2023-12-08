@@ -1,4 +1,4 @@
-from peewee import MySQLDatabase, Model, PrimaryKeyField, CharField, IntegerField, DateTimeField
+from peewee import MySQLDatabase, Model, PrimaryKeyField, BigIntegerField, CharField, DateTimeField, IntegerField
 
 
 db = MySQLDatabase(
@@ -16,7 +16,7 @@ class BaseModel(Model):
 
 
 class Source(BaseModel):
-    person_id = PrimaryKeyField()
+    person_id = BigIntegerField(primary_key=True)
     fetch_from = CharField()
 
 
