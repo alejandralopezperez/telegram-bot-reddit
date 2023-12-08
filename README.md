@@ -80,6 +80,6 @@ connect MySQL container to the network and mount the MySQL database to a volume 
 
 and run the container while connecting it to the `newsbot` network:
 
-    docker run --rm --network newsbot --name newsbot-mysql -e NBT_ACCESS_TOKEN=<token> learning_path/newsbot-mysql
+    docker run --rm --network newsbot --name newsbot-mysql --env-file .env learning_path/newsbot-mysql
 
 where <token> is the Newsbot API key passed as an environment variable, if not passed, the docker will run with the default token value. 
