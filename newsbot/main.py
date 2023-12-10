@@ -1,8 +1,11 @@
 import os
+import pymysql
 from pathlib import Path
+from peewee import OperationalError
+from time import sleep
 
 from newsbot import log
-from utils.models import create_tables
+from utils.models import db, Source, Request, Message
 from utils.states import States
 from utils.telegram import Telegram
 from config.config import AppConfiguration
@@ -30,6 +33,21 @@ class LastUpdate:
 
 
 def main():
+    log.info('Starting up')
+    log.info('Waiting 60 seconds for db to come up')
+    sleep(60)
+    
+    log.info('Checking on dbs')
+    try:
+        db.connect()
+    except OperationalError as e:
+        error_code, message = e.args[0], e.args[1]
+        if error_code == 1049:
+            db_connection = pymysql.connect(host='mysql', user= 'root', password='dontusethisinprod')
+            db_connection.cursor().execute('CREATE DATABASE newsbot')
+            db_connection.close()
+        db.create_tables([Source, Request, Message], True)
+
     try:
         config = AppConfiguration()
     except Exception as e:
@@ -45,7 +63,6 @@ def main():
     states = States()
     try:
         log.info("Starting newsbot")
-        create_tables()
         states.last_updated_id = update.get_last_updated()
         telegram = Telegram(config, states)
         while True:

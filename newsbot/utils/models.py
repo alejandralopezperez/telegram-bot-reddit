@@ -1,7 +1,13 @@
-from peewee import SqliteDatabase, Model, PrimaryKeyField, CharField, IntegerField, DateTimeField
+from peewee import MySQLDatabase, Model, PrimaryKeyField, BigIntegerField, CharField, DateTimeField, IntegerField
 
 
-db = SqliteDatabase('newsbot/data/newsbot.db')
+db = MySQLDatabase(
+    host="mysql", 
+    port=3306, 
+    user="root", 
+    password="dontusethisinprod", 
+    database="newsbot"
+)
 
 
 class BaseModel(Model):
@@ -10,7 +16,7 @@ class BaseModel(Model):
 
 
 class Source(BaseModel):
-    person_id = PrimaryKeyField()
+    person_id = BigIntegerField(primary_key=True)
     fetch_from = CharField()
 
 
@@ -26,9 +32,3 @@ class Message(BaseModel):
     sent_to_id = IntegerField(index=True)
     sent_message = CharField()
     sent_time = DateTimeField()
-
-
-def create_tables():
-    db.connect()
-    db.create_tables([Source, Request, Message], True)
-    db.close()

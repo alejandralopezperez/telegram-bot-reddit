@@ -1,0 +1,32 @@
+services:   
+  newsbot:   
+    build: .   
+    depends_on:   
+      - mysql   
+    restart: "on-failure"   
+    env_file:
+      - .env
+    networks: 
+      - newsbot 
+
+  mysql:   
+    image: mysql  
+    volumes:   
+        - newsbot-db:/var/lib/mysql   
+    environment:   
+        MYSQL_ROOT_PASSWORD: dontusethisinprod   
+    networks: 
+      - newsbot 
+
+  adminer: 
+    image: adminer 
+    ports: 
+        - 8080:8080
+    networks:
+      - newsbot
+
+volumes:   
+  newsbot-db:  
+
+networks: 
+  newsbot: 
