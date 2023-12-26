@@ -1,14 +1,15 @@
 import os
-import pymysql
 from pathlib import Path
-from peewee import OperationalError
 from time import sleep
 
-from newsbot import log
+import pymysql
+from peewee import OperationalError
+
 from utils.models import db, Source, Request, Message
 from utils.states import States
 from utils.telegram import Telegram
 from config.config import AppConfiguration
+from newsbot import log
 
 
 class LastUpdate:
@@ -36,7 +37,7 @@ def main():
     log.info('Starting up')
     log.info('Waiting 60 seconds for db to come up')
     sleep(60)
-    
+
     log.info('Checking on dbs')
     try:
         db.connect()

@@ -84,9 +84,10 @@ and run the container while connecting it to the `newsbot` network:
 
 where <token> is the Newsbot API key passed as an environment variable, if not passed, the docker will run with the default token value. 
 
+
 ## Run Compose application
 
-To run the docker compose run:
+The Docker Compose file contains the Newsbot container and MySQL container, with an attached volume to persist the data. The API token and the mysql password are passed through the env file. To run the docker compose run:
 
     docker-compose up
 
@@ -94,6 +95,18 @@ and tear down the existing Compose file using the following command:
 
     docker-compose down
 
-Bring up the service again using the following command:
+To include a WebUI to check that the contents are being saved to the database, the compose file is modified to include the adminer service (see `docker-compose.adminer.yml`). Bring up the service again using the following command:
 
     docker-compose -f docker-compose.adminer.yml up
+
+Head to [http://localhost:8080] to navigate to adminer. Log in using the following information:
+
+- Data base engine: MySQL
+- Server: mysql
+- Username: root 
+- Password: the password set in the MYSQL_ROOT_PASSWORD value
+- Data base: newsbot
+
+Tear down the existing Compose file using the following command:
+
+    docker-compose -f docker-compose.adminer.yml down
