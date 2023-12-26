@@ -13,8 +13,8 @@ services:
     image: mysql  
     volumes:   
         - newsbot-db:/var/lib/mysql   
-    environment:   
-        MYSQL_ROOT_PASSWORD: dontusethisinprod   
+    env_file:
+      - .env 
     networks: 
       - newsbot 
 
