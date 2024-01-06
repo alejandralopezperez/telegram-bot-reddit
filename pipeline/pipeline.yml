@@ -41,7 +41,7 @@ jobs:
   - checkout: self
 
   - script: |
-      docker-compose build
+      docker build -t newsbot:$(Build.SourceVersion) .
     displayName: 'Build Docker Image'
 
   - task: PublishPipelineArtifact@1
