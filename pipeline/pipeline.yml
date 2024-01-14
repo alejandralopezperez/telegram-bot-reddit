@@ -54,11 +54,4 @@ jobs:
       dockerfile: 'Dockerfile'
       buildContext: '.'
       pushImage: true
-      arguments: '--build-arg NBT_ACCESS_TOKEN=$(NBT_ACCESS_TOKEN) \
-                  --build-arg USER_AGENT=$(USER_AGENT) \
-                  --build-arg UPDATE_PERIOD=$(UPDATE_PERIOD) \
-                  --build-arg LAST_UPDATED_FOLDER=$(LAST_UPDATED_FOLDER) \
-                  --build-arg CLIENT_ID=$(CLIENT_ID) \
-                  --build-arg CLIENT_SECRET=$(CLIENT_SECRET) \
-                  --build-arg MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD)'
   
