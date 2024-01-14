@@ -2,9 +2,15 @@ trigger:
   branches:
     include:
       - main
+  paths:
+    exclude:
+      - README.md
 
 pr:
 - '*'
+
+variables:
+  - group: Azure subscription
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -32,21 +38,27 @@ jobs:
       flake8 . --count --exit-zero --max-complexity=10 --statistics
     displayName: 'Lint with flake8'
 
-- job: DockerBuild
-  displayName: 'Docker Build and Publish Artifact'
+- job: DockerBuildAndPush
+  displayName: 'Docker Build and Push to ACR'
   dependsOn: LintAndBuildDocker
   pool:
     vmImage: 'ubuntu-latest'
   steps:
   - checkout: self
 
-  - script: |
-      docker build -t newsbot:$(Build.SourceVersion) .
-    displayName: 'Build Docker Image'
-
-  - task: PublishPipelineArtifact@1
+  - task: Docker@2
+    displayName: 'Build and Push Docker Image'
     inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'dockerImage'
-    displayName: 'Publish Docker Image as Artifact'
+      command: 'buildAndPush'
+      repository: '$(ACR_NAME).azurecr.io/newsbot'
+      dockerfile: 'Dockerfile'
+      buildContext: '.'
+      pushImage: true
+      arguments: '--build-arg NBT_ACCESS_TOKEN=$(NBT_ACCESS_TOKEN) \
+                  --build-arg USER_AGENT=$(USER_AGENT) \
+                  --build-arg UPDATE_PERIOD=$(UPDATE_PERIOD) \
+                  --build-arg LAST_UPDATED_FOLDER=$(LAST_UPDATED_FOLDER) \
+                  --build-arg CLIENT_ID=$(CLIENT_ID) \
+                  --build-arg CLIENT_SECRET=$(CLIENT_SECRET) \
+                  --build-arg MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD)'
   
