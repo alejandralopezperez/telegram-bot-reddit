@@ -62,5 +62,4 @@ jobs:
       dockerfile: 'Dockerfile'
       buildContext: '.'
       pushImage: true
-      containerRegistry: $(ACR_SERVICE_CONNECTION)
   
