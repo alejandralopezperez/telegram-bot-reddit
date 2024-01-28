@@ -10,56 +10,73 @@ pr:
 - '*'
 
 variables:
-  - group: Azure subscription
+- group: Azure subscription
 
 pool:
   vmImage: 'ubuntu-latest'
 
-jobs:
-- job: LintAndBuildDocker
-  displayName: 'Lint and Build Docker'
-  timeoutInMinutes: 10
-  steps:
-  - checkout: self
+stages:
+- stage: CI
+  jobs:
+  - job: LintAndBuildDocker
+    displayName: 'Lint and Build Docker'
+    timeoutInMinutes: 10
+    steps:
+    - checkout: self
 
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.9'
-      addToPath: true
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.9'
+        addToPath: true
 
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install Dependencies'
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      displayName: 'Install Dependencies'
 
-  - script: |
-      pip install flake8
-      flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-      flake8 . --count --exit-zero --max-complexity=10 --statistics
-    displayName: 'Lint with flake8'
+    - script: |
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --statistics
+      displayName: 'Lint with flake8'
 
-- job: DockerBuildAndPush
-  displayName: 'Docker Build and Push to ACR'
-  dependsOn: LintAndBuildDocker
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - checkout: self
+  - job: DockerBuildAndPush
+    displayName: 'Docker Build and Push to ACR'
+    dependsOn: LintAndBuildDocker
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: 'azure-service-principal'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'az account show'
-    displayName: 'AzureML connection'
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'azure-service-principal'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az account show'
+      displayName: 'AzureML connection'
 
-  - task: Docker@2
-    displayName: 'Build and Push Docker Image'
-    inputs:
-      command: 'buildAndPush'
-      repository: '$(ACR_NAME).azurecr.io/newsbot'
-      dockerfile: 'Dockerfile'
-      buildContext: '.'
-      pushImage: true
+    - task: Bash@3
+      displayName: 'Docker Build'
+      inputs:
+        targetType: 'inline'
+        script: |
+          docker build -t $(ACR_NAME).azurecr.io/newsbot:$(Build.BuildNumber) \
+          --build-arg NBT_ACCESS_TOKEN=$(NBT_ACCESS_TOKEN) \
+          --build-arg USER_AGENT=$(USER_AGENT) \
+          --build-arg UPDATE_PERIOD=$(UPDATE_PERIOD) \
+          --build-arg LAST_UPDATED_FOLDER=$(LAST_UPDATED_FOLDER) \
+          --build-arg CLIENT_ID=$(CLIENT_ID) \
+          --build-arg CLIENT_SECRET=$(CLIENT_SECRET) \
+          --build-arg MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
+          -f Dockerfile .
+
+    - task: AzureCLI@2
+      displayName: 'Push to Container Registry'
+      inputs:
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az acr login --name $(ACR_NAME) --username $(ACR_USERNAME) --password $(ACR_PASSWORD)
+          docker push $(ACR_NAME).azurecr.io/newsbot:$(Build.BuildNumber)
   
