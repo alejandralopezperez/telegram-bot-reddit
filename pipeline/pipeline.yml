@@ -74,6 +74,7 @@ stages:
     - task: AzureCLI@2
       displayName: 'Push to Container Registry'
       inputs:
+        azureSubscription: 'azure-service-principal'
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
